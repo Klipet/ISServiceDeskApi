@@ -1,6 +1,5 @@
 ﻿using DevExpress.Xpo.DB;
 using DevExpress.Xpo;
-using ISServiceDeskApi.ModelDB;
 
 namespace ISServiceDeskApi
 {
@@ -16,7 +15,7 @@ namespace ISServiceDeskApi
         {
             _logger.LogInformation("Сервис запущен в {time}", DateTimeOffset.Now);
 
-            string connectionString =
+            var connectionString =
                PostgreSqlConnectionProvider.GetConnectionString(
                    server: "localhost",
                    userId: "postgres",

@@ -1,63 +1,51 @@
-﻿using DevExpress.Xpo;
-using Microsoft.AspNetCore.Mvc;
-using System.Text;
+﻿using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
+using System.Text;
+using DevExpress.Xpo;
+using ISServiceDeskApi.Entities;
+using ISServiceDeskApi.Requests;
+using ISServiceDeskApi.Responses;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
-using ISServiceDeskApi.ModelDB;
-using Microsoft.AspNetCore.Identity.Data;
-using ISServiceDeskApi.DTO;
 
+namespace ISServiceDeskApi.Controllers;
 
-namespace ISServiceDeskApi.Controllers
+[ApiController]
+[Route("api/[controller]")]
+public class AuthController(UnitOfWork uow, IConfiguration config) : ControllerBase
 {
-    [ApiController]
-    [Route("api/[controller]")]
-    public class AuthController : ControllerBase
+    [HttpPost("login")]
+    public IActionResult Login([FromBody] CreateAuthRequest request)
     {
-        private readonly UnitOfWork _uow;
-        private readonly IConfiguration _config;
+        var user = uow.Query<UserEntity>().FirstOrDefault(u => u.Login == request.Login);
 
-        public AuthController(UnitOfWork uow, IConfiguration config)
+        var passwordMatch = BCrypt.Net.BCrypt.Verify(request.Password, user?.PasswordHesh);
+        if (!passwordMatch)
         {
-            _uow = uow;
-            _config = config;
+            return Unauthorized("Неверный логин или пароль");
         }
 
-        [HttpPost("login")]
-        public IActionResult Login([FromBody] CreateAuthRequest request)
+        var claims = new[]
         {
-
-
-            var user = _uow.Query<User>().FirstOrDefault(u => u.Login == request.Login);
-
-            bool passwordMatch = BCrypt.Net.BCrypt.Verify(request.Password, user?.PasswordHesh);
-            if (!passwordMatch)
-            {
-                return Unauthorized("Неверный логин или пароль");
-            }
-                
-
-            var claims = new[]
-            {
-            new Claim(ClaimTypes.NameIdentifier, user.ID.ToString()),
+            new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
             new Claim(ClaimTypes.Name, user.UserName)
         };
 
-            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_config["Jwt:Key"]));
-            var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
+        var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(config["Jwt:Key"]));
+        var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
 
-            var token = new System.IdentityModel.Tokens.Jwt.JwtSecurityToken(
-                issuer: _config["Jwt:Issuer"],
-                audience: _config["Jwt:Audience"],
-                claims: claims,
-                expires: DateTime.Now.AddHours(2),
-                signingCredentials: creds
-            );
+        var token = new JwtSecurityToken(
+            issuer: config["Jwt:Issuer"],
+            audience: config["Jwt:Audience"],
+            claims: claims,
+            expires: DateTime.Now.AddHours(2),
+            signingCredentials: creds
+        );
+        var response = new AuthenticationResponse
+        {
+            Token = new JwtSecurityTokenHandler().WriteToken(token)
+        };
 
-            return Ok(new
-            {
-                token = new System.IdentityModel.Tokens.Jwt.JwtSecurityTokenHandler().WriteToken(token)
-            });
-        }
+        return Ok(response);
     }
 }

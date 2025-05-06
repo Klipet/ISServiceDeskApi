@@ -1,69 +1,40 @@
-﻿using DevExpress.Xpo;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
-using System.Text;
-using Microsoft.IdentityModel.Tokens;
+﻿using ISServiceDeskApi.Configurations;
 
+namespace ISServiceDeskApi;
 
-
-namespace ISServiceDeskApi
+public class Startup
 {
-    public class Startup
+    private readonly IConfiguration _configuration;
+
+    public Startup(IConfiguration configuration)
     {
-        private readonly IConfiguration _configuration;
-        public Startup(IConfiguration configuration) 
-        {
-            _configuration = configuration;
+        _configuration = configuration;
+    }
 
-        }
+    public void ConfigureServices(IServiceCollection services)
+    {
+        //почему так лучше
+        //так как к примеру у тебя может менятся база данных, и чтобы не лазить сбда и искать или менять 
+        //ты меняшь в методе выше - и оно автоматом у тбя тут сработает
+        //чище остается startup класс и код
+        // там в методе делаешь уже все что тебе надо
+        services.AddDatabase(); // ----->
+        services.AddApiConfiguration(_configuration);
+        services.AddSwagger();
+    }
 
-        public void ConfigureServices(IServiceCollection services)
-        {
-            XpoHelper.InitConnection();
-            services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
-            .AddJwtBearer(options =>
-            {
-                var key = Encoding.UTF8.GetBytes(_configuration["Jwt:Key"]);
-                options.TokenValidationParameters = new TokenValidationParameters
-                {
-                    ValidateIssuer = true,
-                    ValidateAudience = true,
-                    ValidateLifetime = true,
-                    ValidateIssuerSigningKey = true,
-                    ValidIssuer = _configuration["Jwt:Issuer"],
-                    ValidAudience = _configuration["Jwt:Audience"],
-                    IssuerSigningKey = new SymmetricSecurityKey(key)
-                };
-            });
-            services.AddScoped<UnitOfWork>(_=> new UnitOfWork());
-            services.AddControllers();
+    public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
+    {
+        app.UseSwagger();
 
-            // ✅ Swagger
-            services.AddEndpointsApiExplorer();
-            services.AddSwaggerGen();
-        }
+        app.UseRouting();
+        app.UseAuthentication();
+        app.UseAuthorization();
 
-        public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
-        {
-            // ✅ Включаем Swagger всегда (не только в Development)
-            app.UseSwagger();
-            app.UseSwaggerUI(c =>
-            {
-                c.SwaggerEndpoint("/swagger/v1/swagger.json", "My API V1");
-            });
+        app.UseEndpoints(endpoints => { endpoints.MapControllers(); });
 
-            app.UseRouting();
-            app.UseAuthentication(); 
-            app.UseAuthorization();
-
-            app.UseEndpoints(endpoints =>
-            {
-                endpoints.MapControllers();
-            });
-
-            app.ApplicationServices
-               .GetRequiredService<ILogger<Startup>>()
-               .LogInformation("✅ API started at http://localhost:5000");
-        }
-        
+        app.ApplicationServices
+            .GetRequiredService<ILogger<Startup>>()
+            .LogInformation("✅ API started at http://localhost:5000");
     }
 }
