@@ -1,6 +1,6 @@
 ﻿using DevExpress.Xpo;
-using ISServiceDeskApi.DTO;
-using ISServiceDeskApi.ModelDB;
+using ISServiceDeskApi.Entities;
+using ISServiceDeskApi.Requests;
 using Microsoft.AspNetCore.Mvc;
 
 namespace ISServiceDeskApi.Controllers
@@ -20,11 +20,11 @@ namespace ISServiceDeskApi.Controllers
         public IActionResult CreateCompany([FromBody] CreateCompanyRequest request)
         {
             // Проверка на дубликат по IDNO (по желанию)
-            var existing = _uow.Query<Company>().FirstOrDefault(c => c.IDNO == request.IDNO);
+            var existing = _uow.Query<CompanyEntity>().FirstOrDefault(c => c.IDNO == request.IDNO);
             if (existing != null)
                 return Conflict("Компания с таким IDNO уже существует");
 
-            var company = new Company(_uow)
+            var company = new CompanyEntity(_uow)
             {
                 Name = request.Name,
                 Mail = request.Mail,
@@ -45,10 +45,10 @@ namespace ISServiceDeskApi.Controllers
         [HttpGet]
         public IActionResult GetAllCompanies()
         {
-            var companies = _uow.Query<Company>()
+            var companies = _uow.Query<CompanyEntity>()
                 .Select(c => new
                 {
-                    c.ID,
+                    c.Id,
                     c.Name,
                     c.Mail,
                     c.IDNO,
@@ -61,14 +61,14 @@ namespace ISServiceDeskApi.Controllers
         [HttpGet("{id}")]
         public IActionResult GetUsersByCompanyId(int id)
         {
-            var company = _uow.GetObjectByKey<Company>(id);
+            var company = _uow.GetObjectByKey<CompanyEntity>(id);
             if (company == null)
                 return NotFound("Компания не найдена");
 
             var users = company.Users
                 .Select(u => new
                 {
-                    u.ID,
+                    u.Id,
                     u.UserName,
                     u.Phone,
                     u.Status
@@ -77,7 +77,5 @@ namespace ISServiceDeskApi.Controllers
 
             return Ok(users);
         }
-
-
     }
 }
