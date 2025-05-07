@@ -77,6 +77,7 @@ namespace ISServiceDeskApi.Controllers
 
             return Ok(users);
         }
+}
 
 
     }
