@@ -3,13 +3,13 @@
 namespace ISServiceDeskApi.ModelDB
 {
     [Persistent("Statuses")]
-    public class Status : XPLiteObject
+    public class StatusEntites : XPLiteObject
     {
         [Key(true)]
         public int ID { get; set; }
 
         public string Name { get; set; }
 
-        public Status(Session session) : base(session) { }
+        public StatusEntites(Session session) : base(session) { }
     }
 }

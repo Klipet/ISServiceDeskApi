@@ -15,7 +15,7 @@ namespace ISServiceDeskApi.ModelDB
         public bool Status { get; set; }
 
         [Association("Company-Users")]
-        public XPCollection<User> Users => GetCollection<User>(nameof(Users));
+        public XPCollection<UserEntites> Users => GetCollection<UserEntites>(nameof(Users));
 
         public Company(Session session) : base(session) { }
     }

@@ -1,6 +1,6 @@
 ﻿namespace ISServiceDeskApi.DTO
 {
-    public class CreateCompanyRequest
+    public class CreateCompanyDto
     {
         public string Name { get; set; }
         public string Mail { get; set; }

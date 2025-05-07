@@ -3,7 +3,7 @@
 namespace ISServiceDeskApi.ModelDB
 {
     [Persistent("Tickets")]
-    public class Ticket : XPLiteObject
+    public class TicketEntites : XPLiteObject
     {
         [Key(true)]
         public int ID { get; set; }
@@ -16,14 +16,14 @@ namespace ISServiceDeskApi.ModelDB
 
 
         [Association("Ticket-UserSupport")]
-        public XPCollection<UserSupport> Supports => GetCollection<UserSupport>(nameof(Supports));
+        public XPCollection<UserSupportEntites> Supports => GetCollection<UserSupportEntites>(nameof(Supports));
         [Association("User-Tickets")]
-        public User Creator { get; set; }
+        public UserEntites Creator { get; set; }
         [Association("Company-Tickets")]
         public Company Company { get; set; }
         [Association("Status-Tickets")]
-        public Status Status { get; set; }
+        public StatusEntites Status { get; set; }
 
-        public Ticket(Session session) : base(session) { }
+        public TicketEntites(Session session) : base(session) { }
     }
 }

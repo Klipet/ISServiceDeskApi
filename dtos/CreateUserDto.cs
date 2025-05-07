@@ -1,6 +1,6 @@
 ﻿namespace ISServiceDeskApi.DTO
 {
-    public class CreateUserRequest
+    public class CreateUserDto
     {
         public string Name { get; set; }
         public bool Status { get; set; }
