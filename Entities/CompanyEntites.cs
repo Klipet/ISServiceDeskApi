@@ -12,7 +12,8 @@ namespace ISServiceDeskApi.ModelDB
         public string Mail { get; set; }
         public string Logo { get; set; }
         public string IDNO { get; set; }
-        public bool Status { get; set; }
+        public bool Status { get; set; } = true;
+        public bool Vip { get; set; } = false;
 
         [Association("Company-Users")]
         public XPCollection<UserEntites> Users => GetCollection<UserEntites>(nameof(Users));

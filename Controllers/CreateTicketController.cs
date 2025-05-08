@@ -1,4 +1,5 @@
-﻿using DevExpress.Xpo;
+﻿using DevExpress.Data.Filtering;
+using DevExpress.Xpo;
 using ISServiceDeskApi.dtos;
 using ISServiceDeskApi.ModelDB;
 using Microsoft.AspNetCore.Authorization;
@@ -19,17 +20,17 @@ namespace ISServiceDeskApi.Controllers
         }
 
         [HttpPost("create")]
-        [Authorize]
         public IActionResult CreateTicket([FromBody] CreateTicketDto dto)
         {
-            // Получаем ID текущего пользователя из JWT-токена
-            var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier);
+            var user = _uow.FindObject<UserEntites>(CriteriaOperator.Parse("Token == ?", dto.UserToken));
+            var userIdClaim = user;
+
             if (userIdClaim == null)
                 return Unauthorized("Пользователь не авторизован");
 
-            int currentUserId = int.Parse(userIdClaim.Value);
-            var currentUser = _uow.GetObjectByKey<UserEntites>(currentUserId);
-            var status = _uow.GetObjectByKey<StatusEntites>(currentUserId);
+          
+            var currentUser = _uow.GetObjectByKey<UserEntites>(userIdClaim.ID);
+            var status = _uow.GetObjectByKey<StatusEntites>(userIdClaim.ID);
 
             if (currentUser == null)
                 return Unauthorized("Пользователь не найден");
@@ -61,7 +62,10 @@ namespace ISServiceDeskApi.Controllers
                 Description = dto.Description,
                 Company = company,
                 Creator = employee,    // автор — тот, кто создал
-                Status = status // поддержка — выбранный сотрудник
+                Status = status, // поддержка — выбранный сотрудник
+                CreatedData = DateTime.UtcNow,
+                UpdateData = DateTime.UtcNow,
+               
             };
 
             _uow.CommitChanges();

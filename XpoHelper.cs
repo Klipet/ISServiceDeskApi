@@ -18,6 +18,7 @@ namespace ISServiceDeskApi
             var dataLayer = XpoDefault.GetDataLayer(connectionString, AutoCreateOption.DatabaseAndSchema);
             XpoDefault.DataLayer = dataLayer;
             XpoDefault.Session = null;
+            
         }
     }
 }

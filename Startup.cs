@@ -22,6 +22,7 @@ public class Startup
         services.AddDatabase(); // ----->
         services.AddApiConfiguration(_configuration);
         services.AddSwagger();
+        
     }
 
     public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
