@@ -14,9 +14,7 @@ namespace ISServiceDeskApi.ModelDB
         public DateTime UpdateData { get; set; }
         public DateTime ClosedData { get; set; }
 
-
-        [Association("Ticket-UserSupport")]
-        public XPCollection<UserSupportEntites> Supports => GetCollection<UserSupportEntites>(nameof(Supports));
+   
         [Association("User-Tickets")]
         public UserEntites Creator { get; set; }
         [Association("Company-Tickets")]

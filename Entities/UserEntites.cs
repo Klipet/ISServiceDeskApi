@@ -9,6 +9,7 @@ namespace ISServiceDeskApi.ModelDB
         public int ID { get; set; }
         public string UserName { get; set; }
         public bool Status { get; set; }
+        public bool IsSupport { get; set; }
         public String Phone { get; set; }
         public string Login { get; set; }
         public string PasswordHesh { get; set; }
