@@ -1,7 +1,6 @@
-﻿namespace ISServiceDeskApi.dtos
+﻿namespace ISServiceDeskApi.dtos;
+
+public class CreateTiketModeDto
 {
-    public class CreateTiketModeDto
-    {
-        public string Name { get; set; }
-    }
+    public string Name { get; set; }
 }

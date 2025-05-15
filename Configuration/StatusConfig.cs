@@ -2,31 +2,30 @@
 using DevExpress.Xpo;
 using ISServiceDeskApi.ModelDB;
 
-namespace ISServiceDeskApi.Configuration
+namespace ISServiceDeskApi.Configuration;
+
+public static class StatusConfig
 {
-    public static class StatusConfig
+
+    public static void CreateStatuses(UnitOfWork uow)
     {
+        string[] defaultStatuses = { "Новый", "В работе", "Закрыт" };
 
-        public static void CreateStatuses(UnitOfWork uow)
+        foreach (var name in defaultStatuses)
         {
-            string[] defaultStatuses = { "Новый", "В работе", "Закрыт" };
+            var exists = uow.FindObject<StatusEntites>(
+                CriteriaOperator.Parse("Name == ?", name)
+            );
 
-            foreach (var name in defaultStatuses)
+            if (exists == null)
             {
-                var exists = uow.FindObject<StatusEntites>(
-                    CriteriaOperator.Parse("Name == ?", name)
-                );
-
-                if (exists == null)
+                new StatusEntites(uow)
                 {
-                    new StatusEntites(uow)
-                    {
-                        Name = name
-                    };
-                }
+                    Name = name
+                };
             }
-
-            uow.CommitChanges();
         }
+
+        uow.CommitChanges();
     }
 }

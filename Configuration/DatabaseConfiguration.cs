@@ -1,14 +1,13 @@
 ﻿using DevExpress.Xpo;
 
-namespace ISServiceDeskApi.Configuration
+namespace ISServiceDeskApi.Configuration;
+
+public static class DatabaseConfiguration
 {
-    public static class DatabaseConfiguration
+    public static void AddDatabase(this IServiceCollection services)
     {
-        public static void AddDatabase(this IServiceCollection services)
-        {
-            XpoHelper.InitConnection();
-         //   StatusConfig.CreateStatuses(new UnitOfWork());
-            
-        }
+        XpoHelper.InitConnection();
+     //   StatusConfig.CreateStatuses(new UnitOfWork());
+        
     }
 }

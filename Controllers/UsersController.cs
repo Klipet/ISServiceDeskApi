@@ -27,7 +27,7 @@ public class UsersController : ControllerBase
             return NotFound("Компания не найдена");
 
         // Создаём пользователя
-        var user = new UserEntites(_uow)
+        var user = new UserEntity(_uow)
         {
             UserName = request.Name,
             Status = request.Status,
@@ -45,7 +45,7 @@ public class UsersController : ControllerBase
     [HttpGet]
     public IActionResult GetAllUsers()
     {
-        var users = _uow.Query<UserEntites>()
+        var users = _uow.Query<UserEntity>()
             .Select(u => new
             {
                 u.ID,

@@ -1,16 +1,15 @@
-﻿namespace ISServiceDeskApi.Configuration
+﻿namespace ISServiceDeskApi.Configuration;
+
+public static class HostConfiguration
 {
-    public static class HostConfiguration
+    public static void AddWebHostConfiguration(this IHostBuilder builder)
     {
-        public static void AddWebHostConfiguration(this IHostBuilder builder)
+        builder.ConfigureWebHostDefaults(webBuilder =>
         {
-            builder.ConfigureWebHostDefaults(webBuilder =>
-            {
-                webBuilder
-                    .UseKestrel()
-                    .UseUrls("http://localhost:5000") // Слушаем порт
-                    .UseStartup<Startup>();
-            });
-        }
+            webBuilder
+                .UseKestrel()
+                .UseUrls("http://localhost:5000") // Слушаем порт
+                .UseStartup<Startup>();
+        });
     }
 }

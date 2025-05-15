@@ -29,7 +29,7 @@ public class AuthController : ControllerBase
     {
 
 
-        var user = _uow.Query<UserEntites>().FirstOrDefault(u => u.Login == request.Login);
+        var user = _uow.Query<UserEntity>().FirstOrDefault(u => u.Login == request.Login);
 
         if (user == null)
         {

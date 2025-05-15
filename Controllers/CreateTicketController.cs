@@ -6,75 +6,74 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
 
-namespace ISServiceDeskApi.Controllers
+namespace ISServiceDeskApi.Controllers;
+
+[ApiController]
+[Route("api/[controller]")]
+public class TicketController : ControllerBase
 {
-    [ApiController]
-    [Route("api/[controller]")]
-    public class TicketController : ControllerBase
+    private readonly UnitOfWork _uow;
+
+    public TicketController(UnitOfWork uow)
     {
-        private readonly UnitOfWork _uow;
+        _uow = uow;
+    }
 
-        public TicketController(UnitOfWork uow)
+    [HttpPost("create")]
+    public IActionResult CreateTicket([FromBody] CreateTicketDto dto)
+    {
+        var user = _uow.FindObject<UserEntity>(CriteriaOperator.Parse("Token == ?", dto.UserToken));
+        var userIdClaim = user;
+
+        if (userIdClaim == null)
+            return Unauthorized("Пользователь не авторизован");
+
+      
+        var currentUser = _uow.GetObjectByKey<UserEntity>(userIdClaim.ID);
+        var status = _uow.GetObjectByKey<StatusEntites>(userIdClaim.ID);
+
+        if (currentUser == null)
+            return Unauthorized("Пользователь не найден");
+
+        // Получаем компанию и сотрудника
+        var company = _uow.GetObjectByKey<Company>(dto.CompanyId);
+        var employee = _uow.GetObjectByKey<UserEntity>(dto.EmployeeId);
+
+        if (company == null)
+            return BadRequest("Компания не найдена");
+
+        if (employee == null)
+            return BadRequest("Сотрудник не найден");
+
+        if (employee.Company?.ID != company.ID)
+            return BadRequest("Сотрудник не принадлежит указанной компании");
+
+        // Проверка: если текущий пользователь не UserSupport (админ/поддержка), 
+        // то он сам должен быть сотрудником этой компании
+        if (!currentUser.IsSupport && currentUser.Company?.ID != company.ID)
         {
-            _uow = uow;
+            return Unauthorized("Вы не можете создавать тикеты для другой компании");
         }
 
-        [HttpPost("create")]
-        public IActionResult CreateTicket([FromBody] CreateTicketDto dto)
+        // Создание тикета
+        var ticket = new TicketEntity(_uow)
         {
-            var user = _uow.FindObject<UserEntites>(CriteriaOperator.Parse("Token == ?", dto.UserToken));
-            var userIdClaim = user;
+            Title = dto.Title,
+            Description = dto.Description,
+            Company = company,
+            Creator = employee,    // автор — тот, кто создал
+            Status = status, // поддержка — выбранный сотрудник
+            CreatedData = DateTime.UtcNow,
+            UpdateData = DateTime.UtcNow,
+           
+        };
 
-            if (userIdClaim == null)
-                return Unauthorized("Пользователь не авторизован");
+        _uow.CommitChanges();
 
-          
-            var currentUser = _uow.GetObjectByKey<UserEntites>(userIdClaim.ID);
-            var status = _uow.GetObjectByKey<StatusEntites>(userIdClaim.ID);
-
-            if (currentUser == null)
-                return Unauthorized("Пользователь не найден");
-
-            // Получаем компанию и сотрудника
-            var company = _uow.GetObjectByKey<Company>(dto.CompanyId);
-            var employee = _uow.GetObjectByKey<UserEntites>(dto.EmployeeId);
-
-            if (company == null)
-                return BadRequest("Компания не найдена");
-
-            if (employee == null)
-                return BadRequest("Сотрудник не найден");
-
-            if (employee.Company?.ID != company.ID)
-                return BadRequest("Сотрудник не принадлежит указанной компании");
-
-            // Проверка: если текущий пользователь не UserSupport (админ/поддержка), 
-            // то он сам должен быть сотрудником этой компании
-            if (!currentUser.IsSupport && currentUser.Company?.ID != company.ID)
-            {
-                return Unauthorized("Вы не можете создавать тикеты для другой компании");
-            }
-
-            // Создание тикета
-            var ticket = new TicketEntites(_uow)
-            {
-                Title = dto.Title,
-                Description = dto.Description,
-                Company = company,
-                Creator = employee,    // автор — тот, кто создал
-                Status = status, // поддержка — выбранный сотрудник
-                CreatedData = DateTime.UtcNow,
-                UpdateData = DateTime.UtcNow,
-               
-            };
-
-            _uow.CommitChanges();
-
-            return Ok(new
-            {
-                message = "Тикет успешно создан",
-                ticketId = ticket.ID
-            });
-        }
+        return Ok(new
+        {
+            message = "Тикет успешно создан",
+            ticketId = ticket.ID
+        });
     }
 }

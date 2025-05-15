@@ -17,7 +17,7 @@ public class TiketSettingController : ControllerBase
     [HttpPost("create-mod")]
     public IActionResult CreateModTiket([FromBody] CreateTiketModeDto model) 
     {
-        var mod = new TiketModeEntites(_uow)
+        var mod = new TiketModeEntity(_uow)
         {
             Name = model.Name
         };
@@ -27,7 +27,7 @@ public class TiketSettingController : ControllerBase
     [HttpPost("create-type")]
     public IActionResult CreateTypeTiket([FromBody] CreateTiketTypeDto model) 
     {
-        var mod = new TiketTypeEntites(_uow)
+        var mod = new TiketTypeEntity(_uow)
         {
             Name = model.Name
         };
@@ -37,7 +37,7 @@ public class TiketSettingController : ControllerBase
     [HttpPost("create-priority")]
     public IActionResult CreatePreorityTiket([FromBody] CreateTiketPreorityDto model) 
     {
-        var mod = new TiketPreorityEntites(_uow)
+        var mod = new TiketPreorityEntity(_uow)
         {
             Name = model.Name
         };

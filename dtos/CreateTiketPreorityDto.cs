@@ -1,7 +1,6 @@
-﻿namespace ISServiceDeskApi.dtos
+﻿namespace ISServiceDeskApi.dtos;
+
+public class CreateTiketPreorityDto
 {
-    public class CreateTiketPreorityDto
-    {
-        public string Name { get; set; }
-    }
+    public string Name { get; set; }
 }
